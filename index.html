@@ -51,8 +51,10 @@ h1{font-size:7vw;font-weight:700;margin-bottom:1vw;}
 .dec-delta{font-size:5vw;font-weight:600;margin:1vw 0;}
 .dec-euro{font-size:7vw;font-weight:700;}
 .dec-sub{font-size:3vw;color:#888;margin-top:1vw;}
+.neutro{background:#F8F7F4;border:1.5px solid #D3D1C7;}
 .winner{background:#1D9E7522;border:2px solid #1D9E75;}
 .loser{background:#FCEBEB;border:2px solid #E24B4A;}
+.neutro{background:#fff;border:1.5px solid #D3D1C7;}
 .tab-content{display:none;}
 .tab-content.active{display:block;}
 </style>
@@ -161,7 +163,7 @@ h1{font-size:7vw;font-weight:700;margin-bottom:1vw;}
 
   <!-- Risultati -->
   <div id="d-result-A" style="display:none;">
-    <div class="dec-result loser" id="d-A">
+    <div class="dec-result neutro" id="d-A">
       <div class="imp-lbl">Impianto A</div>
       <div class="dec-pz-row">
         <div class="dec-pz-box"><div class="dec-pz-lbl">Attuali</div><div class="dec-pz-val" id="dA-pz">—</div><div class="dec-pz-lbl">pz/ora</div></div>
@@ -175,7 +177,7 @@ h1{font-size:7vw;font-weight:700;margin-bottom:1vw;}
   </div>
 
   <div id="d-result-B" style="display:none;">
-    <div class="dec-result loser" id="d-B">
+    <div class="dec-result neutro" id="d-B">
       <div class="imp-lbl">Impianto B</div>
       <div class="dec-pz-row">
         <div class="dec-pz-box"><div class="dec-pz-lbl">Attuali</div><div class="dec-pz-val" id="dB-pz">—</div><div class="dec-pz-lbl">pz/ora</div></div>
@@ -296,8 +298,8 @@ function decidi(){
     document.getElementById('d-consiglio').style.display='block';
   } else {
     document.getElementById('d-consiglio').style.display='none';
-    document.getElementById('d-A').className='dec-result loser';
-    document.getElementById('d-B').className='dec-result loser';
+    document.getElementById('d-A').className='dec-result neutro';
+    document.getElementById('d-B').className='dec-result neutro';
   }
 }
 </script>
