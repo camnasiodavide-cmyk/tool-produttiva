@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tool Produttività</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{min-height:100vh;width:100%;}
+body{font-family:Arial,sans-serif;background:#F1EFE8;color:#2C2C2A;padding:4vw;}
+
+h1{font-size:7vw;font-weight:700;margin-bottom:1vw;}
+.sub{font-size:3.5vw;color:#888780;margin-bottom:4vw;}
+
+.tabs{display:flex;gap:2vw;margin-bottom:4vw;}
+.tab{flex:1;padding:3.5vw;border-radius:2.5vw;border:1.5px solid #D3D1C7;
+  background:#fff;font-size:4vw;font-weight:600;cursor:pointer;
+  text-align:center;color:#5F5E5A;white-space:nowrap;}
+.tab.active{background:#2C2C2A;color:#fff;border-color:#2C2C2A;}
+
+.card{background:#fff;border:0.5px solid #D3D1C7;border-radius:3vw;
+  padding:5vw;margin-bottom:4vw;}
+.card-title{font-size:3.5vw;font-weight:700;color:#5F5E5A;
+  margin-bottom:4vw;text-transform:uppercase;letter-spacing:0.5px;}
+
+.lav-toggle{display:flex;gap:2vw;margin-bottom:4vw;}
+.lav-btn{flex:1;padding:3.5vw;border-radius:2.5vw;border:1.5px solid #D3D1C7;
+  background:#fff;font-size:4vw;font-weight:600;cursor:pointer;
+  text-align:center;color:#5F5E5A;white-space:nowrap;}
+.lav-btn.active-m{background:#3C3489;color:#fff;border-color:#3C3489;}
+.lav-btn.active-l{background:#A32D2D;color:#fff;border-color:#A32D2D;}
+
+.field{margin-bottom:4vw;}
+.field label{display:block;font-size:3.8vw;color:#888780;font-weight:600;margin-bottom:2vw;}
+.field input{width:100%;padding:4vw;border:1.5px solid #D3D1C7;border-radius:2.5vw;
+  font-size:5vw;background:#fff;color:#2C2C2A;-webkit-appearance:none;}
+.field input:focus{outline:none;border-color:#7F77DD;}
+
+.risultato{background:#2C2C2A;border-radius:3vw;padding:5vw;
+  text-align:center;margin-top:2vw;}
+.risultato .lbl{font-size:3.5vw;color:#888780;margin-bottom:1.5vw;}
+.risultato .val{font-size:10vw;font-weight:700;color:#fff;line-height:1.1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.risultato .unit{font-size:4vw;color:#888780;}
+
+.detail-row{display:flex;justify-content:space-between;
+  padding:2vw 0;border-bottom:1px solid #F1EFE8;font-size:4vw;}
+.detail-row:last-child{border-bottom:none;}
+.detail-lbl{color:#888780;}
+.detail-val{font-weight:600;}
+
+.imp-card{background:#F8F7F4;border:1.5px solid #D3D1C7;
+  border-radius:3vw;padding:4vw;margin-bottom:3vw;}
+.imp-title{font-size:4.5vw;font-weight:700;margin-bottom:3vw;}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:3vw;}
+
+.dec-result{border-radius:3vw;padding:4vw;margin-bottom:3vw;text-align:center;}
+.dec-result .imp-lbl{font-size:4vw;font-weight:700;margin-bottom:2vw;}
+.dec-result .pz-val{font-size:9vw;font-weight:700;margin-bottom:1vw;}
+.dec-result .delta{font-size:5vw;font-weight:600;margin-bottom:1vw;}
+.dec-result .euro{font-size:7vw;font-weight:700;}
+.dec-result .sub{font-size:3.2vw;color:#666;margin-top:1.5vw;}
+
+.winner{background:#1D9E7522;border:2px solid #1D9E75;}
+.loser{background:#F1EFE8;border:1.5px solid #D3D1C7;}
+
+.consiglio{background:#fff;border:0.5px solid #D3D1C7;border-radius:3vw;
+  padding:5vw;text-align:center;margin-top:2vw;}
+.consiglio .lbl{font-size:3.5vw;color:#888780;margin-bottom:2vw;}
+.consiglio .val{font-size:6vw;font-weight:700;}
+.consiglio .mot{font-size:3.5vw;color:#888780;margin-top:2vw;}
+
+.tab-content{display:none;}
+.tab-content.active{display:block;}
+
+/* Doppio risultato calcolo */
+.ris-grid{display:grid;grid-template-columns:1fr 1fr;gap:0;}
+.ris-grid > div{padding:4vw;text-align:center;overflow:hidden;min-width:0;}
+.ris-grid > div:first-child{border-right:1px solid #444;}
+</style>
+</head>
+<body>
+
+<h1>Tool Produttività</h1>
+<p class="sub">Calcolo pezzi e supporto decisionale</p>
+
+<div class="tabs">
+  <button class="tab active" onclick="showTab('calcolo',this)">📐 Calcolo pz/ora</button>
+  <button class="tab" onclick="showTab('decisione',this)">⚡ Decisione</button>
+</div>
+
+<!-- TAB CALCOLO -->
+<div id="tab-calcolo" class="tab-content active">
+  <div class="card">
+    <div class="card-title">Lavorazione</div>
+    <div class="lav-toggle">
+      <button class="lav-btn active-m" id="lav-c-m" onclick="setLav('calcolo','M')">Metallizzazione</button>
+      <button class="lav-btn" id="lav-c-l" onclick="setLav('calcolo','L')">Laccatura</button>
+    </div>
+    <div class="field">
+      <label>Velocità (m/min)</label>
+      <input type="number" id="c-vel" placeholder="es. 12.5" step="0.1" min="0.5" max="16" inputmode="decimal" oninput="calcola()">
+    </div>
+    <div class="field" style="margin-bottom:0;">
+      <label>N° posaggi</label>
+      <input type="number" id="c-pos" placeholder="es. 16" min="1" inputmode="numeric" oninput="calcola()">
+    </div>
+  </div>
+
+  <div class="risultato" id="c-result" style="display:none;">
+    <div class="ris-grid">
+      <div>
+        <div class="lbl">Pz macchinati/ora</div>
+        <div class="val" id="c-pzh">—</div>
+        <div class="unit">pz/ora</div>
+      </div>
+      <div>
+        <div class="lbl">Pz buoni/ora (−5%)</div>
+        <div class="val" style="color:#1D9E75;" id="c-pzbuoni">—</div>
+        <div class="unit">pz/ora</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" id="c-detail" style="display:none;margin-top:3vw;">
+    <div class="detail-row">
+      <span class="detail-lbl">t × 10 bil.</span>
+      <span class="detail-val" id="c-t10">—</span>
+    </div>
+    <div class="detail-row">
+      <span class="detail-lbl">Cicli/ora</span>
+      <span class="detail-val" id="c-cicli">—</span>
+    </div>
+  </div>
+</div>
+
+<!-- TAB DECISIONE -->
+<div id="tab-decisione" class="tab-content">
+  <div class="card">
+    <div class="card-title">Lavorazione</div>
+    <div class="lav-toggle">
+      <button class="lav-btn active-m" id="lav-d-m" onclick="setLav('decisione','M')">Metallizzazione</button>
+      <button class="lav-btn" id="lav-d-l" onclick="setLav('decisione','L')">Laccatura</button>
+    </div>
+  </div>
+
+  <div class="imp-card">
+    <div class="imp-title">🔵 Impianto A</div>
+    <div class="row2">
+      <div class="field">
+        <label>Vel. attuale</label>
+        <input type="number" id="a-vel" placeholder="es. 10" step="0.1" min="0.5" max="16" inputmode="decimal" oninput="decidi()">
+      </div>
+      <div class="field">
+        <label>Vel. possibile</label>
+        <input type="number" id="a-vel2" placeholder="es. 13" step="0.1" min="0.5" max="16" inputmode="decimal" oninput="decidi()">
+      </div>
+    </div>
+    <div class="row2">
+      <div class="field" style="margin-bottom:0;">
+        <label>N° posaggi</label>
+        <input type="number" id="a-pos" placeholder="es. 16" min="1" inputmode="numeric" oninput="decidi()">
+      </div>
+      <div class="field" style="margin-bottom:0;">
+        <label>€/pezzo</label>
+        <input type="number" id="a-euro" placeholder="0.095" step="0.001" min="0" inputmode="decimal" oninput="decidi()">
+      </div>
+    </div>
+  </div>
+
+  <div class="imp-card">
+    <div class="imp-title">🟠 Impianto B</div>
+    <div class="row2">
+      <div class="field">
+        <label>Vel. attuale</label>
+        <input type="number" id="b-vel" placeholder="es. 12" step="0.1" min="0.5" max="16" inputmode="decimal" oninput="decidi()">
+      </div>
+      <div class="field">
+        <label>Vel. possibile</label>
+        <input type="number" id="b-vel2" placeholder="es. 14" step="0.1" min="0.5" max="16" inputmode="decimal" oninput="decidi()">
+      </div>
+    </div>
+    <div class="row2">
+      <div class="field" style="margin-bottom:0;">
+        <label>N° posaggi</label>
+        <input type="number" id="b-pos" placeholder="es. 10" min="1" inputmode="numeric" oninput="decidi()">
+      </div>
+      <div class="field" style="margin-bottom:0;">
+        <label>€/pezzo</label>
+        <input type="number" id="b-euro" placeholder="0.12" step="0.001" min="0" inputmode="decimal" oninput="decidi()">
+      </div>
+    </div>
+  </div>
+
+  <div id="d-result" style="display:none;">
+    <div class="dec-result" id="d-A">
+      <div class="imp-lbl">Impianto A</div>
+      <div class="pz-val" id="dA-pz">—</div>
+      <div class="sub">pz/ora attuali → <span id="dA-pz2">—</span> possibili</div>
+      <div class="delta" id="dA-dpz">—</div>
+      <div class="euro" id="dA-euro">—</div>
+      <div class="sub">guadagno orario aggiuntivo</div>
+    </div>
+    <div class="dec-result" id="d-B">
+      <div class="imp-lbl">Impianto B</div>
+      <div class="pz-val" id="dB-pz">—</div>
+      <div class="sub">pz/ora attuali → <span id="dB-pz2">—</span> possibili</div>
+      <div class="delta" id="dB-dpz">—</div>
+      <div class="euro" id="dB-euro">—</div>
+      <div class="sub">guadagno orario aggiuntivo</div>
+    </div>
+    <div class="consiglio">
+      <div class="lbl">CONVIENE ACCELERARE</div>
+      <div class="val" id="d-winner">—</div>
+      <div class="mot" id="d-motivo">—</div>
+    </div>
+  </div>
+</div>
+
+<script>
+const COEF={M:[1046.41,-1.6187],L:[529.86,-0.9923]};
+let lavTab={calcolo:'M',decisione:'M'};
+
+function setLav(tab,lav){
+  lavTab[tab]=lav;
+  const isM=lav==='M';
+  if(tab==='calcolo'){
+    document.getElementById('lav-c-m').className='lav-btn'+(isM?' active-m':'');
+    document.getElementById('lav-c-l').className='lav-btn'+(!isM?' active-l':'');
+    calcola();
+  } else {
+    document.getElementById('lav-d-m').className='lav-btn'+(isM?' active-m':'');
+    document.getElementById('lav-d-l').className='lav-btn'+(!isM?' active-l':'');
+    decidi();
+  }
+}
+
+function showTab(name,btn){
+  document.querySelectorAll('.tab-content').forEach(el=>el.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(el=>el.classList.remove('active'));
+  document.getElementById('tab-'+name).classList.add('active');
+  btn.classList.add('active');
+}
+
+function getT10(vel,lav){
+  const [a,b]=COEF[lav];
+  return a/vel+b;
+}
+
+function getPzOra(vel,pos,lav){
+  if(!vel||!pos||vel<=0||pos<=0) return null;
+  const t=getT10(vel,lav);
+  if(t<=0) return null;
+  return ((60*10)/t)*60*pos;
+}
+
+function fmt(n){return Math.round(n).toLocaleString('it-IT');}
+function fmtE(n){return '€'+n.toFixed(2);}
+
+function calcola(){
+  const vel=parseFloat(document.getElementById('c-vel').value);
+  const pos=parseFloat(document.getElementById('c-pos').value);
+  const lav=lavTab.calcolo;
+  if(!vel||!pos){
+    document.getElementById('c-result').style.display='none';
+    document.getElementById('c-detail').style.display='none';
+    return;
+  }
+  const pzh=getPzOra(vel,pos,lav);
+  const t10=getT10(vel,lav);
+  document.getElementById('c-pzh').textContent=fmt(pzh);
+  document.getElementById('c-pzbuoni').textContent=fmt(pzh*0.95);
+  document.getElementById('c-t10').textContent=t10.toFixed(1)+' sec';
+  document.getElementById('c-cicli').textContent=(3600/t10).toFixed(1)+'/ora';
+  document.getElementById('c-result').style.display='block';
+  document.getElementById('c-detail').style.display='block';
+}
+
+function decidi(){
+  const lav=lavTab.decisione;
+  const aVel=parseFloat(document.getElementById('a-vel').value);
+  const aVel2=parseFloat(document.getElementById('a-vel2').value);
+  const aPos=parseFloat(document.getElementById('a-pos').value);
+  const aEuro=parseFloat(document.getElementById('a-euro').value);
+  const bVel=parseFloat(document.getElementById('b-vel').value);
+  const bVel2=parseFloat(document.getElementById('b-vel2').value);
+  const bPos=parseFloat(document.getElementById('b-pos').value);
+  const bEuro=parseFloat(document.getElementById('b-euro').value);
+  if(!aVel||!aVel2||!aPos||!aEuro||!bVel||!bVel2||!bPos||!bEuro){
+    document.getElementById('d-result').style.display='none';
+    return;
+  }
+  const aPz1=getPzOra(aVel,aPos,lav);
+  const aPz2=getPzOra(aVel2,aPos,lav);
+  const bPz1=getPzOra(bVel,bPos,lav);
+  const bPz2=getPzOra(bVel2,bPos,lav);
+  const aG=(aPz2-aPz1)*aEuro;
+  const bG=(bPz2-bPz1)*bEuro;
+
+  document.getElementById('dA-pz').textContent=fmt(aPz1);
+  document.getElementById('dA-pz2').textContent=fmt(aPz2);
+  document.getElementById('dA-dpz').textContent='+'+fmt(aPz2-aPz1)+' pz/ora';
+  document.getElementById('dA-euro').textContent='+'+fmtE(aG)+'/ora';
+  document.getElementById('dB-pz').textContent=fmt(bPz1);
+  document.getElementById('dB-pz2').textContent=fmt(bPz2);
+  document.getElementById('dB-dpz').textContent='+'+fmt(bPz2-bPz1)+' pz/ora';
+  document.getElementById('dB-euro').textContent='+'+fmtE(bG)+'/ora';
+
+  const winA=aG>=bG;
+  document.getElementById('d-A').className='dec-result '+(winA?'winner':'loser');
+  document.getElementById('d-B').className='dec-result '+(!winA?'winner':'loser');
+  document.getElementById('d-winner').textContent='👉 '+(winA?'Impianto A':'Impianto B');
+  document.getElementById('d-motivo').textContent=
+    '+'+fmtE(Math.max(aG,bG))+'/ora vs +'+fmtE(Math.min(aG,bG))+'/ora';
+  document.getElementById('d-result').style.display='block';
+}
+</script>
+</body>
+</html>
