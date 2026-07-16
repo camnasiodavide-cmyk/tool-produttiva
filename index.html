@@ -158,7 +158,7 @@ h1{font-size:7vw;font-weight:700;margin-bottom:1vw;}
   <!-- Consiglio PRIMA dei risultati -->
   <div id="d-consiglio" style="display:none;">
     <div class="consiglio">
-      <div class="consiglio-lbl">Conviene accelerare</div>
+      <div class="consiglio-lbl" id="d-consiglio-lbl">—</div>
       <div class="consiglio-val" id="d-winner">—</div>
       <div class="consiglio-mot" id="d-motivo">—</div>
     </div>
@@ -234,7 +234,7 @@ function getPzOra(vel,pos,lav){
   return t>0?((60*10)/t)*60*pos:null;
 }
 function fmt(n){return Math.round(n).toLocaleString('it-IT');}
-function fmtE(n){return '€'+n.toFixed(2);}
+function fmtE(n){return n.toFixed(2)+' €';}
 
 function calcola(){
   const vel=parseFloat(document.getElementById('c-vel').value);
@@ -275,8 +275,8 @@ function decidi(){
     const aG=(aPz2-aPz1)*aEuro;
     document.getElementById('dA-pz').textContent=fmt(aPz1);
     document.getElementById('dA-pz2').textContent=fmt(aPz2);
-    document.getElementById('dA-dpz').textContent='+'+fmt(aPz2-aPz1)+' pz/ora';
-    document.getElementById('dA-euro').textContent='+'+fmtE(aG)+'/ora';
+    const dA=aPz2-aPz1; document.getElementById('dA-dpz').textContent=(dA>=0?'+':'')+fmt(dA)+' pz/ora';
+    document.getElementById('dA-euro').textContent=(aG>=0?'+':'')+fmtE(aG)+'/ora';
     document.getElementById('d-result-A').style.display='block';
   } else {
     document.getElementById('d-result-A').style.display='none';
@@ -288,8 +288,8 @@ function decidi(){
     const bG=(bPz2-bPz1)*bEuro;
     document.getElementById('dB-pz').textContent=fmt(bPz1);
     document.getElementById('dB-pz2').textContent=fmt(bPz2);
-    document.getElementById('dB-dpz').textContent='+'+fmt(bPz2-bPz1)+' pz/ora';
-    document.getElementById('dB-euro').textContent='+'+fmtE(bG)+'/ora';
+    const dB=bPz2-bPz1; document.getElementById('dB-dpz').textContent=(dB>=0?'+':'')+fmt(dB)+' pz/ora';
+    document.getElementById('dB-euro').textContent=(bG>=0?'+':'')+fmtE(bG)+'/ora';
     document.getElementById('d-result-B').style.display='block';
   } else {
     document.getElementById('d-result-B').style.display='none';
@@ -300,13 +300,52 @@ function decidi(){
     const aPz2=getPzOra(aVel2,aPos,lavA)*0.94;
     const bPz1=getPzOra(bVel,bPos,lavB)*0.94;
     const bPz2=getPzOra(bVel2,bPos,lavB)*0.94;
-    const aG=(aPz2-aPz1)*aEuro;
+    const aG=(aPz2-aPz1)*aEuro;  // positivo=guadagno, negativo=perdita
     const bG=(bPz2-bPz1)*bEuro;
-    const winA=aG>=bG;
-    document.getElementById('d-A').className='dec-result '+(winA?'winner':'loser');
-    document.getElementById('d-B').className='dec-result '+(!winA?'winner':'loser');
-    document.getElementById('d-winner').textContent='👉 '+(winA?'Impianto A':'Impianto B');
-    document.getElementById('d-motivo').textContent='+'+fmtE(Math.max(aG,bG))+'/ora vs +'+fmtE(Math.min(aG,bG))+'/ora';
+
+    const aSale=aVel2>aVel, bSale=bVel2>bVel;
+    const aScende=aVel2<aVel, bScende=bVel2<bVel;
+    const saldo=aG+bG;
+
+    let winner, motivo, clA, clB;
+
+    let titolo;
+    if(aSale && bSale){
+      // Caso 1: entrambi salgono — quale guadagna di più
+      const winA=aG>=bG;
+      titolo='Conviene aumentare';
+      winner='👉 '+(winA?'Impianto A':'Impianto B');
+      motivo=(winA?'+'+fmtE(aG):'+'+fmtE(bG))+'/ora vs '+(winA?'+'+fmtE(bG):'+'+fmtE(aG))+'/ora';
+      clA=winA?'winner':'loser'; clB=winA?'loser':'winner';
+    } else if(aScende && bScende){
+      // Caso 2: entrambi scendono — quale perde meno (meno negativo)
+      const winA=aG>=bG;  // aG più vicino a 0 = perde meno
+      titolo='Meglio ridurre';
+      winner='👉 '+(winA?'Impianto A':'Impianto B');
+      motivo=(winA?fmtE(aG):fmtE(bG))+'/ora vs '+(winA?fmtE(bG):fmtE(aG))+'/ora';
+      clA=winA?'winner':'loser'; clB=winA?'loser':'winner';
+    } else {
+      // Caso 3: uno sale e uno scende — saldo netto
+      titolo='Spostamento';
+      if(saldo>0){
+        winner='✅ Conviene — saldo +'+fmtE(saldo)+'/ora';
+        motivo=(aSale?'A +':' A ')+fmtE(aG)+'/ora  |  '+(bSale?'B +':'B ')+fmtE(bG)+'/ora';
+        clA=aSale?'winner':'loser'; clB=bSale?'winner':'loser';
+      } else if(saldo<0){
+        winner='❌ Non conviene — saldo '+fmtE(saldo)+'/ora';
+        motivo=(aSale?'A +':'A ')+fmtE(aG)+'/ora  |  '+(bSale?'B +':'B ')+fmtE(bG)+'/ora';
+        clA=aSale?'loser':'winner'; clB=bSale?'loser':'winner';
+      } else {
+        winner='⚖️ Saldo neutro — €0.00/ora';
+        motivo=''; clA='neutro'; clB='neutro';
+      }
+    }
+    document.getElementById('d-consiglio-lbl').textContent=titolo;
+
+    document.getElementById('d-A').className='dec-result '+clA;
+    document.getElementById('d-B').className='dec-result '+clB;
+    document.getElementById('d-winner').textContent=winner;
+    document.getElementById('d-motivo').textContent=motivo;
     document.getElementById('d-consiglio').style.display='block';
   } else {
     document.getElementById('d-consiglio').style.display='none';
