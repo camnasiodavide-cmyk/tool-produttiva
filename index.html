@@ -114,16 +114,13 @@ h1{font-size:7vw;font-weight:700;margin-bottom:1vw;}
 
 <!-- TAB DECISIONE -->
 <div id="tab-decisione" class="tab-content">
-  <div class="card">
-    <div class="card-title">Lavorazione</div>
-    <div class="lav-toggle">
-      <button class="lav-btn active-m" id="lav-d-m" onclick="setLav('decisione','M')">Metallizzazione</button>
-      <button class="lav-btn" id="lav-d-l" onclick="setLav('decisione','L')">Laccatura</button>
-    </div>
-  </div>
 
   <div class="imp-card">
     <div class="imp-title">🔵 Impianto A</div>
+    <div class="lav-toggle">
+      <button class="lav-btn active-m" id="lav-a-m" onclick="setLavImp('A','M')">Metallizzazione</button>
+      <button class="lav-btn" id="lav-a-l" onclick="setLavImp('A','L')">Laccatura</button>
+    </div>
     <div class="row2">
       <div class="field"><label>Vel. attuale</label>
         <input type="number" id="a-vel" placeholder="es. 10" step="0.1" min="0.5" max="16" inputmode="decimal" oninput="decidi()"></div>
@@ -140,6 +137,10 @@ h1{font-size:7vw;font-weight:700;margin-bottom:1vw;}
 
   <div class="imp-card">
     <div class="imp-title">🟠 Impianto B</div>
+    <div class="lav-toggle">
+      <button class="lav-btn active-m" id="lav-b-m" onclick="setLavImp('B','M')">Metallizzazione</button>
+      <button class="lav-btn" id="lav-b-l" onclick="setLavImp('B','L')">Laccatura</button>
+    </div>
     <div class="row2">
       <div class="field"><label>Vel. attuale</label>
         <input type="number" id="b-vel" placeholder="es. 12" step="0.1" min="0.5" max="16" inputmode="decimal" oninput="decidi()"></div>
@@ -195,7 +196,15 @@ h1{font-size:7vw;font-weight:700;margin-bottom:1vw;}
 
 <script>
 const COEF={M:[1046.41,-1.6187],L:[529.86,-0.9923]};
-let lavTab={calcolo:'M',decisione:'M'};
+let lavTab={calcolo:'M',A:'M',B:'M'};
+
+function setLavImp(imp,lav){
+  lavTab[imp]=lav;
+  const isM=lav==='M';
+  document.getElementById('lav-'+imp.toLowerCase()+'-m').className='lav-btn'+(isM?' active-m':'');
+  document.getElementById('lav-'+imp.toLowerCase()+'-l').className='lav-btn'+(!isM?' active-l':'');
+  decidi();
+}
 
 function showTab(name,btn){
   document.querySelectorAll('.tab-content').forEach(el=>el.classList.remove('active'));
@@ -247,7 +256,8 @@ function calcola(){
 }
 
 function decidi(){
-  const lav=lavTab.decisione;
+  const lavA=lavTab.A;
+  const lavB=lavTab.B;
   const aVel=parseFloat(document.getElementById('a-vel').value);
   const aVel2=parseFloat(document.getElementById('a-vel2').value);
   const aPos=parseFloat(document.getElementById('a-pos').value);
@@ -260,8 +270,8 @@ function decidi(){
   const bOk=bVel&&bVel2&&bPos&&bEuro;
 
   if(aOk){
-    const aPz1=getPzOra(aVel,aPos,lav)*0.94;
-    const aPz2=getPzOra(aVel2,aPos,lav)*0.94;
+    const aPz1=getPzOra(aVel,aPos,lavA)*0.94;
+    const aPz2=getPzOra(aVel2,aPos,lavA)*0.94;
     const aG=(aPz2-aPz1)*aEuro;
     document.getElementById('dA-pz').textContent=fmt(aPz1);
     document.getElementById('dA-pz2').textContent=fmt(aPz2);
@@ -273,8 +283,8 @@ function decidi(){
   }
 
   if(bOk){
-    const bPz1=getPzOra(bVel,bPos,lav)*0.94;
-    const bPz2=getPzOra(bVel2,bPos,lav)*0.94;
+    const bPz1=getPzOra(bVel,bPos,lavB)*0.94;
+    const bPz2=getPzOra(bVel2,bPos,lavB)*0.94;
     const bG=(bPz2-bPz1)*bEuro;
     document.getElementById('dB-pz').textContent=fmt(bPz1);
     document.getElementById('dB-pz2').textContent=fmt(bPz2);
@@ -286,10 +296,10 @@ function decidi(){
   }
 
   if(aOk&&bOk){
-    const aPz1=getPzOra(aVel,aPos,lav)*0.94;
-    const aPz2=getPzOra(aVel2,aPos,lav)*0.94;
-    const bPz1=getPzOra(bVel,bPos,lav)*0.94;
-    const bPz2=getPzOra(bVel2,bPos,lav)*0.94;
+    const aPz1=getPzOra(aVel,aPos,lavA)*0.94;
+    const aPz2=getPzOra(aVel2,aPos,lavA)*0.94;
+    const bPz1=getPzOra(bVel,bPos,lavB)*0.94;
+    const bPz2=getPzOra(bVel2,bPos,lavB)*0.94;
     const aG=(aPz2-aPz1)*aEuro;
     const bG=(bPz2-bPz1)*bEuro;
     const winA=aG>=bG;
