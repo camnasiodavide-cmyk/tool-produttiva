@@ -9,7 +9,8 @@
 html,body{min-height:100vh;width:100%;}
 body{font-family:Arial,sans-serif;background:#F1EFE8;color:#2C2C2A;padding:4vw;}
 h1{font-size:7vw;font-weight:700;margin-bottom:1vw;}
-.sub{font-size:3.5vw;color:#888780;margin-bottom:4vw;}
+.sub{font-size:3.5vw;color:#888780;margin-bottom:2vw;}
+.nota{font-size:3vw;color:#888780;margin-bottom:4vw;font-style:italic;}
 .tabs{display:flex;gap:2vw;margin-bottom:4vw;}
 .tab{flex:1;padding:3.5vw;border-radius:2.5vw;border:1.5px solid #D3D1C7;background:#fff;font-size:4vw;font-weight:600;cursor:pointer;text-align:center;color:#5F5E5A;white-space:nowrap;}
 .tab.active{background:#2C2C2A;color:#fff;border-color:#2C2C2A;}
@@ -62,6 +63,7 @@ h1{font-size:7vw;font-weight:700;margin-bottom:1vw;}
 <body>
 <h1>Tool Produttività</h1>
 <p class="sub">Calcolo pezzi e supporto decisionale</p>
+<p class="nota">I valori sono ridotti del 6% rispetto al teorico per tenere conto delle possibili inefficienze della linea.</p>
 <div class="tabs">
   <button class="tab active" onclick="showTab('calcolo',this)">📐 Calcolo pz/ora</button>
   <button class="tab" onclick="showTab('decisione',this)">⚡ Decisione</button>
@@ -92,7 +94,7 @@ h1{font-size:7vw;font-weight:700;margin-bottom:1vw;}
         <div class="ris-unit">pz/ora</div>
       </div>
       <div>
-        <div class="ris-lbl">Pz buoni/ora (−5%)</div>
+        <div class="ris-lbl">Pz buoni/ora (−4%)</div>
         <div class="ris-val" style="color:#1D9E75;" id="c-pzbuoni">—</div>
         <div class="ris-unit">pz/ora</div>
       </div>
@@ -236,8 +238,8 @@ function calcola(){
   }
   const pzh=getPzOra(vel,pos,lav);
   const t10=getT10(vel,lav);
-  document.getElementById('c-pzh').textContent=fmt(pzh);
-  document.getElementById('c-pzbuoni').textContent=fmt(pzh*0.95);
+  document.getElementById('c-pzh').textContent=fmt(pzh*0.94);
+  document.getElementById('c-pzbuoni').textContent=fmt(pzh*0.94*0.96);
   document.getElementById('c-t10').textContent=t10.toFixed(1)+' sec';
   document.getElementById('c-cicli').textContent=(3600/t10).toFixed(1)+'/ora';
   document.getElementById('c-result').style.display='block';
@@ -258,8 +260,8 @@ function decidi(){
   const bOk=bVel&&bVel2&&bPos&&bEuro;
 
   if(aOk){
-    const aPz1=getPzOra(aVel,aPos,lav);
-    const aPz2=getPzOra(aVel2,aPos,lav);
+    const aPz1=getPzOra(aVel,aPos,lav)*0.94;
+    const aPz2=getPzOra(aVel2,aPos,lav)*0.94;
     const aG=(aPz2-aPz1)*aEuro;
     document.getElementById('dA-pz').textContent=fmt(aPz1);
     document.getElementById('dA-pz2').textContent=fmt(aPz2);
@@ -271,8 +273,8 @@ function decidi(){
   }
 
   if(bOk){
-    const bPz1=getPzOra(bVel,bPos,lav);
-    const bPz2=getPzOra(bVel2,bPos,lav);
+    const bPz1=getPzOra(bVel,bPos,lav)*0.94;
+    const bPz2=getPzOra(bVel2,bPos,lav)*0.94;
     const bG=(bPz2-bPz1)*bEuro;
     document.getElementById('dB-pz').textContent=fmt(bPz1);
     document.getElementById('dB-pz2').textContent=fmt(bPz2);
@@ -284,10 +286,10 @@ function decidi(){
   }
 
   if(aOk&&bOk){
-    const aPz1=getPzOra(aVel,aPos,lav);
-    const aPz2=getPzOra(aVel2,aPos,lav);
-    const bPz1=getPzOra(bVel,bPos,lav);
-    const bPz2=getPzOra(bVel2,bPos,lav);
+    const aPz1=getPzOra(aVel,aPos,lav)*0.94;
+    const aPz2=getPzOra(aVel2,aPos,lav)*0.94;
+    const bPz1=getPzOra(bVel,bPos,lav)*0.94;
+    const bPz2=getPzOra(bVel2,bPos,lav)*0.94;
     const aG=(aPz2-aPz1)*aEuro;
     const bG=(bPz2-bPz1)*bEuro;
     const winA=aG>=bG;
